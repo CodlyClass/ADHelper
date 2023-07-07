@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "modid",
+	"version": "${version}",
+	"name": "Ancient debris finder",
+	"description": "Fill the road to the closest ancient debirs with particles when mining",
+	"authors": [
+		"cckk"
+	],
+	"contact": {
+		"homepage": "https://baidu.com/",
+		"sources": "https://gayhub.com/"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/modid/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"main": [
+			"com.example.ExampleMod"
+		],
+		"client": [
+			"com.example.ADFinder"
+		]
+	},
+	"mixins": [
+		"modid.mixins.json",
+		{
+			"config": "modid.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.14.21",
+		"minecraft": "~1.20",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
