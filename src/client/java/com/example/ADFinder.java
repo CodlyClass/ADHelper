@@ -8,6 +8,8 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.StonecutterBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
@@ -40,14 +42,11 @@ public class ADFinder implements ClientModInitializer {
     public void tick(MinecraftClient client) {
         if(client.player!=null) {
             if (autofishGuiKey.wasPressed() && toggle == false) {
-//                if(status == 2)status = 0;
-//                else status = 2;
-//                client.player.sendMessage(Text.of("ADFinder: " + (status==2?"Off":"On")));
                 MinecraftClient.getInstance().setScreen(new SettingScreen(new SettingGuiDescription()));
                 toggle = true;
             }
             if (!autofishGuiKey.wasPressed())toggle = false;
-            if(status != 2){
+            if(configManager.getConfig().isOn()){
                 client.player.setOnFire(false);
                 findAncientDebris(client);
             }
@@ -56,25 +55,29 @@ public class ADFinder implements ClientModInitializer {
 
     public void findAncientDebris(MinecraftClient client) {
         PlayerEntity player = client.player;
+
         int radius = configManager.getConfig().getDetectRadius();
-        Vec3d target = new Vec3d(0,0,0);
-        Vec3d start = new Vec3d(player.getX() + 0.5f, player.getY() + 0.5f, player.getZ() + 0.5f);
+        String targetBlockName = configManager.getConfig().getTargetBlockName();
+
+        assert player != null;
         Vec3d playerPos = player.getPos();
-        playerPos=playerPos.add(0,1.15,0);
+        playerPos = playerPos.add(0,1.15,0);
+
         double mn = 1145141919;
+        Vec3d target = new Vec3d(0,0,0);
 
         for(int x = (int) (playerPos.getX()-radius); x<=playerPos.getX()+radius; x++){
             for(int y = (int) (player.getY()-radius); y<=playerPos.getY()+radius; y++){
                 for(int z = (int) (player.getZ()-radius); z<=playerPos.getZ()+radius; z++){
                     BlockState state = player.getWorld().getBlockState(new BlockPos(x,y,z));
-                    if(state.getBlock().toString().equals("Block{minecraft:ancient_debris}")) {
+                    if(state.getBlock().toString().equals("Block{"+targetBlockName+"}")) {
                         if(status == 0) {
                             status = 1;
                             player.sendMessage(Text.of("ancient debris! at " + x + " " + y + " " + z));
                         }
                         Vec3d end = new Vec3d(x + 0.5f, y + 0.5f, z + 0.5f);
-                        double dis = end.distanceTo(start);
-                        if(dis<mn){
+                        double dis = end.distanceTo(playerPos);
+                        if(dis + 1 < mn){
                             mn = dis + 1;
                             target = new Vec3d(end.x,end.y,end.z);
                         }
